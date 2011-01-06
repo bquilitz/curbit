@@ -53,12 +53,16 @@ module Curbit
 
         return unless rate_limit_opts_valid?(opts)
 
+        group = opts[:group] || ''
+        @@crl_method_counter ||= 0
+        @@crl_method_counter = @@crl_method_counter  +1
+
         self.class_eval do
-          define_method "rate_limit_#{method}" do
-            rate_limit_filter(method, opts)
+          define_method "rate_limit_#{method}_#{@@crl_method_counter}" do
+            rate_limit_filter("#{method}#{group}", opts)
           end
         end
-        self.before_filter("rate_limit_#{method}", :only => method)
+        self.before_filter("rate_limit_#{method}_#{@@crl_method_counter}", :only => method)
       end
 
       private 
